@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #2f3f5f;
+  --color-gold: #f1c019;
+  --color-surface: #fafdff;
+  --color-cloud: #e0e2e7;
+  --color-muted: #6e7585;
+  --color-success: #0ab848;
+  --color-danger: #ff2819;
+
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --radius-card: 6px;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-navy);
+}
