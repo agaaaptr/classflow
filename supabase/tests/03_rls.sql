@@ -1,5 +1,5 @@
 begin;
-select plan(14);
+select plan(17);
 
 -- student1 (paid)
 set local role authenticated;
@@ -18,9 +18,15 @@ select is((select count(*)::int from public.invoices), 1, 'unpaid student sees o
 
 -- tutor1
 set local request.jwt.claims to '{"sub":"00000000-0000-0000-0000-000000000002"}';
+select is((select count(*)::int from public.classes), 1, 'tutor sees assigned class only');
 select is((select count(*)::int from public.class_rates), 0, 'tutor cannot read student rates');
 select is((select count(*)::int from public.lessons), 5, 'tutor sees assigned class lessons');
 select is((select count(*)::int from public.tutor_earnings), 2, 'tutor sees own earnings');
+
+-- tutor2 (assigned to nothing)
+set local request.jwt.claims to '{"sub":"00000000-0000-0000-0000-000000000003"}';
+select is((select count(*)::int from public.classes), 0, 'unassigned tutor sees no classes');
+select is((select count(*)::int from public.lessons), 0, 'unassigned tutor sees no lessons');
 
 -- admin
 set local request.jwt.claims to '{"sub":"00000000-0000-0000-0000-000000000001"}';

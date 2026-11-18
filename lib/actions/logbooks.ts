@@ -18,7 +18,10 @@ export async function ensureLogbook(
     .select("id")
     .single();
 
-  if (!error) return { ok: true, error: null, id: data.id };
+  if (!error) {
+    revalidatePath(`/tutor/classes/${classId}`);
+    return { ok: true, error: null, id: data.id };
+  }
 
   if (error.code === "23505") {
     const { data: existing } = await supabase
@@ -27,6 +30,7 @@ export async function ensureLogbook(
       .eq("class_id", classId)
       .eq("period", period)
       .single();
+    revalidatePath(`/tutor/classes/${classId}`);
     return { ok: true, error: null, id: existing?.id };
   }
   return { ok: false, error: "Gagal membuat logbook." };

@@ -69,3 +69,17 @@ export function formatTimeWIB(iso: string): string {
 export function wibToIso(date: string, time: string): string {
   return `${date}T${time}:00+07:00`;
 }
+
+// Logbook period (YYYY-MM) of an instant, in WIB.
+export function periodOf(date: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jakarta",
+    year: "numeric",
+    month: "2-digit",
+  }).format(date);
+}
+
+// Current logbook period: the WIB month of "now" as YYYY-MM.
+export function currentPeriod(): string {
+  return periodOf(new Date());
+}
