@@ -112,7 +112,8 @@ export default async function StudentDashboard() {
                       <span className="ml-2 text-muted">belum dibayar</span>
                     </div>
                     <ActionButton
-                      action={() => payInvoice(inv.id)}
+                      action={payInvoice}
+                      args={[inv.id]}
                       className="rounded-card bg-success px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
                     >
                       Bayar
@@ -182,7 +183,8 @@ export default async function StudentDashboard() {
                 </div>
               </div>
               <ActionButton
-                action={() => enrollStudent(c.id)}
+                action={enrollStudent}
+                args={[c.id]}
                 className="rounded-card bg-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
               >
                 Daftar

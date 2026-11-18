@@ -1,0 +1,80 @@
+import { test, expect, type Page } from "@playwright/test";
+
+async function login(page: Page, email: string) {
+  await page.goto("/login");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill("Classflow123!");
+  await page.getByRole("button", { name: "Masuk" }).click();
+}
+
+// Declaration order matters (workers: 1). Read-only checks run first; the two
+// mutating flows (student2 pays, admin approves) run last.
+
+test("admin sees margin, unpaid invoice, and submitted logbook", async ({ page }) => {
+  await login(page, "admin@classflow.dev");
+  await page.waitForURL("**/admin");
+
+  await expect(page.getByRole("heading", { name: "Dashboard Admin" })).toBeVisible();
+  await expect(page.getByText("Kelas Matematika SMP").first()).toBeVisible();
+  await expect(page.getByText(/1\.200\.000/).first()).toBeVisible(); // revenue
+  await expect(page.getByText(/975\.000/).first()).toBeVisible(); // margin
+  await expect(page.getByText("Siswa Dua").first()).toBeVisible(); // unpaid invoice
+  await expect(page.getByText("Menunggu").first()).toBeVisible(); // Nov logbook submitted
+});
+
+test("tutor sees assigned class and submitted logbook", async ({ page }) => {
+  await login(page, "tutor1@classflow.dev");
+  await page.waitForURL("**/tutor");
+
+  await expect(page.getByText("Kelas Matematika SMP").first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Slip earnings" })).toBeVisible();
+  await expect(page.getByText(/112\.500/).first()).toBeVisible(); // Oct earnings
+
+  await page.getByRole("link", { name: /Kelola/ }).click();
+  await page.waitForURL("**/tutor/classes/**");
+  await expect(page.getByRole("heading", { name: "Jadwal lesson" })).toBeVisible();
+  await expect(page.getByText("Periode 2026-11").first()).toBeVisible();
+  await expect(page.getByText("Menunggu").first()).toBeVisible();
+});
+
+test("student1 sees paid class, hours left, and approved logbook", async ({ page }) => {
+  await login(page, "student1@classflow.dev");
+  await page.waitForURL("**/student");
+
+  await expect(page.getByText("Lunas").first()).toBeVisible();
+  await expect(page.getByText(/Sisa jam/).first()).toBeVisible();
+  await expect(page.getByText("Periode 2026-10").first()).toBeVisible();
+  await expect(page.getByText("Aljabar dasar").first()).toBeVisible();
+});
+
+test("student3 cannot enroll in a full class", async ({ page }) => {
+  await login(page, "student3@classflow.dev");
+  await page.waitForURL("**/student");
+
+  await page.getByRole("button", { name: "Daftar" }).click();
+  await expect(page.getByText("Kelas sudah penuh")).toBeVisible();
+});
+
+test("student2 pays and unlocks access", async ({ page }) => {
+  await login(page, "student2@classflow.dev");
+  await page.waitForURL("**/student");
+
+  await expect(page.getByText("Belum bayar").first()).toBeVisible();
+  await page.getByRole("button", { name: "Bayar" }).click();
+  await expect(page.getByText("Lunas").first()).toBeVisible();
+  await expect(page.getByText(/Sisa jam/).first()).toBeVisible();
+});
+
+test("admin approves the November logbook", async ({ page }) => {
+  await login(page, "admin@classflow.dev");
+  await page.waitForURL("**/admin");
+
+  await page.getByRole("link", { name: /Tinjau & setujui/ }).click();
+  await page.waitForURL("**/admin/logbooks/**");
+  await expect(page.getByRole("heading", { name: "Preview earnings tutor" })).toBeVisible();
+  await expect(page.getByText(/225\.000/).first()).toBeVisible();
+
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "Setujui logbook" }).click();
+  await expect(page.getByText("Disetujui").first()).toBeVisible();
+});

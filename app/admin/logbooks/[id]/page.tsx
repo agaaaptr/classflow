@@ -98,7 +98,8 @@ export default async function AdminLogbookPage({
           </div>
           {logbook.status === "submitted" && (
             <ActionButton
-              action={() => approveLogbook(logbook.id)}
+              action={approveLogbook}
+              args={[logbook.id]}
               confirmText={`Setujui logbook dan catat earnings ${formatRupiah(total)}?`}
               className="rounded-card bg-success px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
             >

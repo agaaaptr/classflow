@@ -143,7 +143,8 @@ export default async function AdminDashboard() {
                   </div>
                 </div>
                 <ActionButton
-                  action={() => cancelInvoice(inv.id)}
+                  action={cancelInvoice}
+                  args={[inv.id]}
                   confirmText="Batalkan invoice ini? Kursinya akan dilepas."
                   className="rounded-card border border-danger px-3 py-1.5 text-sm font-medium text-danger hover:bg-danger/10 disabled:opacity-60"
                 >

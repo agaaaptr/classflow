@@ -128,7 +128,8 @@ export default async function TutorClassPage({
           <h2 id="logbook-heading" className="text-sm font-semibold">Logbook bulanan</h2>
           {!currentLogbook && (
             <ActionButton
-              action={() => ensureLogbook(cls.id, period)}
+              action={ensureLogbook}
+              args={[cls.id, period]}
               className="rounded-card bg-navy px-3 py-1.5 text-sm font-medium text-white disabled:opacity-60"
             >
               Buat logbook {period}
@@ -150,7 +151,8 @@ export default async function TutorClassPage({
                   </div>
                   {isDraft && missing.length === 0 && (
                     <ActionButton
-                      action={() => submitLogbook(lb.id)}
+                      action={submitLogbook}
+                      args={[lb.id]}
                       confirmText="Submit logbook untuk direview admin?"
                       className="rounded-card bg-navy px-3 py-1.5 text-sm font-medium text-white disabled:opacity-60"
                     >
