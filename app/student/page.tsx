@@ -62,7 +62,9 @@ export default async function StudentDashboard() {
   const enrolledClassIds = new Set(activeEnrollments.map((e) => e.class_id));
   const available = classes.filter((c) => !enrolledClassIds.has(c.id));
 
-  const now = Date.now();
+  // "now" is the request time; the page is dynamic (cookies), so this is a
+  // per-request snapshot, not a render-time side effect.
+  const now = Date.now(); // eslint-disable-line react-hooks/purity
   const card = "rounded-card border border-cloud bg-white";
 
   return (

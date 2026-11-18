@@ -59,7 +59,9 @@ export default async function TutorClassPage({
   }
 
   const lessonById = new Map(lessons.map((l) => [l.id, l]));
-  const now = Date.now();
+  // "now" is the request time; the page is dynamic (cookies), so this is a
+  // per-request snapshot, not a render-time side effect.
+  const now = Date.now(); // eslint-disable-line react-hooks/purity
   const ended = lessons.filter((l) => new Date(l.ends_at).getTime() <= now);
   const upcoming = lessons.filter((l) => new Date(l.ends_at).getTime() > now);
 

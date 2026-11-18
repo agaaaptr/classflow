@@ -38,7 +38,6 @@ export default async function AdminLogbookPage({
 
   const lessonById = new Map((lessons ?? []).map((l) => [l.id, l]));
   const earningsPreview = preview ?? [];
-  const minutesById = new Map(earningsPreview.map((p) => [p.lesson_id, p.minutes]));
   const total = earningsPreview.reduce((sum, p) => sum + p.amount_rp, 0);
 
   const card = "rounded-card border border-cloud bg-white";

@@ -8,10 +8,9 @@ import { formatRupiah, formatMinutes, hoursLeft } from "@/lib/utils";
 export default async function AdminDashboard() {
   const supabase = await createClient();
 
-  const [classesR, ratesR, enrollmentsR, invoicesR, earningsR, lessonsR, logbooksR, profilesR] =
+  const [classesR, enrollmentsR, invoicesR, earningsR, lessonsR, logbooksR, profilesR] =
     await Promise.all([
       supabase.from("classes").select("id, name, tutor_id, capacity, package_minutes"),
-      supabase.from("class_rates").select("class_id, student_rate_rp, tutor_rate_rp"),
       supabase.from("enrollments").select("id, class_id, student_id, package_minutes, amount_rp, status"),
       supabase.from("invoices").select("id, enrollment_id, student_id, amount_rp, status, paid_at"),
       supabase.from("tutor_earnings").select("class_id, amount_rp, minutes"),
@@ -21,7 +20,6 @@ export default async function AdminDashboard() {
     ]);
 
   const classes = classesR.data ?? [];
-  const rates = ratesR.data ?? [];
   const enrollments = enrollmentsR.data ?? [];
   const invoices = invoicesR.data ?? [];
   const earnings = earningsR.data ?? [];
