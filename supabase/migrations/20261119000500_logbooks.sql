@@ -6,7 +6,7 @@
 create table public.logbooks (
   id uuid primary key default gen_random_uuid(),
   class_id uuid not null references public.classes (id) on delete cascade,
-  tutor_id uuid not null references public.profiles (id),
+  tutor_id uuid not null references public.profiles (id) default auth.uid(),
   period text not null check (period ~ '^\d{4}-\d{2}$'),
   status text not null default 'draft' check (status in ('draft', 'submitted', 'approved')),
   approved_at timestamptz,

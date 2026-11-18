@@ -185,7 +185,7 @@ isOneToOne: false
                   }
                   ComputedFields: never
                   Insert: {
-                    "approved_at"?: string | null,"approved_by"?: string | null,"class_id": string,"created_at"?: string,"id"?: string,"period": string,"status"?: string,"tutor_id": string
+                    "approved_at"?: string | null,"approved_by"?: string | null,"class_id": string,"created_at"?: string,"id"?: string,"period": string,"status"?: string,"tutor_id"?: string
                   }
                   Update: {
                     "approved_at"?: string | null,"approved_by"?: string | null,"class_id"?: string,"created_at"?: string,"id"?: string,"period"?: string,"status"?: string,"tutor_id"?: string
