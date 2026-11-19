@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition, useState, type FormEvent } from "react";
+import { useTransition, useState, type SyntheticEvent } from "react";
 import { scheduleLesson } from "@/lib/actions/lessons";
 import { wibToIso } from "@/lib/utils";
 
@@ -12,15 +12,17 @@ export default function ScheduleLessonForm({ classId }: { classId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  function submit(e: FormEvent<HTMLFormElement>) {
+  function submit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    const startIso = wibToIso(startDate, startTime);
+    const endIso = wibToIso(endDate, endTime);
+    if (new Date(endIso).getTime() <= new Date(startIso).getTime()) {
+      setError("Waktu selesai harus setelah waktu mulai.");
+      return;
+    }
     startTransition(async () => {
-      const result = await scheduleLesson(
-        classId,
-        wibToIso(startDate, startTime),
-        wibToIso(endDate, endTime),
-      );
+      const result = await scheduleLesson(classId, startIso, endIso);
       if (!result.ok) {
         setError(result.error);
       } else {

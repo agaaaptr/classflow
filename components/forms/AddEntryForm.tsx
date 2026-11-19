@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition, useState, type FormEvent } from "react";
+import { useTransition, useState, type SyntheticEvent } from "react";
 import { addLogbookEntry } from "@/lib/actions/logbooks";
 import Select from "@/components/ui/Select";
 
@@ -22,17 +22,26 @@ export default function AddEntryForm({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  function submit(e: FormEvent<HTMLFormElement>) {
+  function submit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    if (
+      !topic.trim() ||
+      !activities.trim() ||
+      !observation.trim() ||
+      !recommendation.trim()
+    ) {
+      setError("Semua field wajib diisi.");
+      return;
+    }
     startTransition(async () => {
       const result = await addLogbookEntry({
         logbookId,
         lessonId,
-        topic,
-        activities,
-        observation,
-        recommendation,
+        topic: topic.trim(),
+        activities: activities.trim(),
+        observation: observation.trim(),
+        recommendation: recommendation.trim(),
       });
       if (!result.ok) {
         setError(result.error);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, type FormEvent } from "react";
+import { useState, useTransition, type SyntheticEvent } from "react";
 import { createClass } from "@/lib/actions/classes";
 import Select from "@/components/ui/Select";
 import { formatThousands } from "@/lib/utils";
@@ -22,7 +22,7 @@ export default function CreateClassForm({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  function submit(e: FormEvent<HTMLFormElement>) {
+  function submit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     startTransition(async () => {
