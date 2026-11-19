@@ -40,7 +40,7 @@ Business rules live in the database; the app layer is UX + friendly error mappin
 | Lesson end after start | `CHECK (ends_at > starts_at)` |
 | Tutor lessons don't overlap | `EXCLUDE USING gist (tutor_id =, tstzrange(starts_at, ends_at) &&)` + `btree_gist` → `23P01`/409 |
 | One logbook per class per month | `UNIQUE (class_id, period)` |
-| One entry per ended lesson | `UNIQUE (logbook_id, lesson_id)` + trigger (lesson ended, same class) |
+| One entry per ended lesson | `UNIQUE (logbook_id, lesson_id)` + trigger (lesson ended, same class, same WIB month) |
 | Only admin approves | `approve_logbook()` SECURITY DEFINER, admin-only, idempotent |
 | Approved logbook read-only | `BEFORE UPDATE/DELETE` trigger raises when `status='approved'` |
 | Students see only paid classes | RLS `student_has_paid(class_id)` |
