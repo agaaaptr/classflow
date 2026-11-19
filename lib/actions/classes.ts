@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 
 const createClassSchema = z.object({
   name: z.string().trim().min(1, "Nama kelas wajib diisi"),
-  tutorId: z.string().uuid(),
+  tutorId: z.string().uuid("Pilih tutor terlebih dahulu."),
   studentRate: z.coerce.number().int().positive("Student rate harus positif"),
   tutorRate: z.coerce.number().int().positive("Tutor rate harus positif"),
   capacity: z.coerce.number().int().positive("Kapasitas harus positif"),
@@ -45,7 +45,10 @@ export async function createClass(
     p_capacity: parsed.data.capacity,
     p_package_minutes: parsed.data.packageHours * 60,
   });
-  if (error) return { ok: false, error: "Gagal membuat kelas." };
+  if (error) {
+    if (error.code === "22P02") return { ok: false, error: "Pilih tutor terlebih dahulu." };
+    return { ok: false, error: error.message || "Gagal membuat kelas." };
+  }
 
   revalidatePath("/admin/classes");
   revalidatePath("/admin");

@@ -29,7 +29,7 @@ export default async function AdminClassesPage() {
         </div>
         <Link
           href="/admin/classes/new"
-          className="rounded-card bg-navy px-4 py-2 text-sm font-semibold text-white"
+          className="inline-flex h-11 items-center rounded-card bg-navy px-4 text-sm font-semibold text-white"
         >
           Buat kelas
         </Link>

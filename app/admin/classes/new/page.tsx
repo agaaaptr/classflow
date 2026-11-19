@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import BackLink from "@/components/BackLink";
 import CreateClassForm from "@/components/forms/CreateClassForm";
+import EmptyState from "@/components/ui/EmptyState";
 
 export default async function NewClassPage() {
   const supabase = await createClient();
@@ -13,9 +14,14 @@ export default async function NewClassPage() {
       <header>
         <h1 className="text-2xl font-semibold">Buat kelas baru</h1>
       </header>
-      <div className="max-w-xl">
+      {tutors.length > 0 ? (
         <CreateClassForm tutors={tutors.map((t) => ({ id: t.id, full_name: t.full_name }))} />
-      </div>
+      ) : (
+        <EmptyState
+          title="Belum ada tutor"
+          description="Buat akun tutor terlebih dahulu sebelum membuat kelas."
+        />
+      )}
     </div>
   );
 }

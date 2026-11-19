@@ -5,7 +5,7 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { toast } from "@/components/ui/Toast";
 
 const BASE =
-  "inline-flex items-center justify-center rounded-card px-3 py-1.5 text-sm font-medium disabled:opacity-60";
+  "inline-flex h-11 items-center justify-center rounded-card px-4 text-sm font-medium disabled:opacity-60";
 const VARIANTS: Record<string, string> = {
   primary: "bg-navy text-white",
   secondary: "border border-cloud text-navy hover:bg-surface",

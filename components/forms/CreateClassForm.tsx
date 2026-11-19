@@ -24,28 +24,30 @@ export default function CreateClassForm({
     >
       <h2 className="text-base font-semibold">Buat kelas baru</h2>
 
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium">
-          Nama kelas
-        </label>
-        <input
-          id="name"
-          name="name"
-          required
-          className={inputClass}
-          placeholder="Kelas Matematika SMP"
-        />
-      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium">
+            Nama kelas
+          </label>
+          <input
+            id="name"
+            name="name"
+            required
+            className={inputClass}
+            placeholder="Kelas Matematika SMP"
+          />
+        </div>
 
-      <div>
-        <span className="block text-sm font-medium">Tutor</span>
-        <Select
-          name="tutorId"
-          ariaLabel="Tutor"
-          value={tutorId}
-          onChange={setTutorId}
-          options={tutors.map((t) => ({ value: t.id, label: t.full_name }))}
-        />
+        <div>
+          <span className="block text-sm font-medium">Tutor</span>
+          <Select
+            name="tutorId"
+            ariaLabel="Tutor"
+            value={tutorId}
+            onChange={setTutorId}
+            options={tutors.map((t) => ({ value: t.id, label: t.full_name }))}
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -115,7 +117,7 @@ export default function CreateClassForm({
 
       <button
         type="submit"
-        disabled={pending}
+        disabled={pending || !tutorId}
         aria-busy={pending}
         className="h-11 w-full rounded-card bg-navy px-4 text-sm font-semibold text-white disabled:opacity-60"
       >
