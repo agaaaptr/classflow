@@ -37,15 +37,15 @@ Open http://localhost:3000 and sign in with one of the seeded accounts below.
 
 ## One-command local dev (Docker)
 
-To run the app in Docker instead of on the host, a single command starts Supabase (via the CLI) and the app (via Docker Compose):
+To run the app in Docker instead of on the host, a single command starts Supabase (via the CLI, which runs Supabase's ~12 platform containers) and the app (via Docker Compose):
 
 ```bash
-npm run dev:docker
+npm run dev:docker    # or: make dev
 ```
 
-This runs `supabase start`, resets the demo seed, writes `.env.local` from the printed publishable key, then builds and starts the app container at **http://localhost:3000** (set `APP_PORT` to override the port). Supabase's own services (Postgres, Auth, Studio) stay in the Supabase CLI's containers; only the Next.js app runs in Docker.
+This runs `supabase start`, resets the demo seed, writes `.env.local` from the printed publishable key, then builds and starts the app container at **http://localhost:3000** (set `APP_PORT` to override the port). Supabase's own services (Postgres, Auth, PostgREST, Studio, …) stay in the Supabase CLI's containers; only the Next.js app runs in this repo's Compose file.
 
-- Stop the app: `docker compose down`.
+- Stop everything: `make down` (stops the app container and runs `supabase stop` for the Supabase platform). Individually: `docker compose down` (app only) or `supabase stop` (Supabase only).
 - Reset the data: `supabase db reset` (never `docker compose down -v` — the database lives in Supabase's containers).
 
 ## Seeded logins
