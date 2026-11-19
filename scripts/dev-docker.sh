@@ -4,7 +4,12 @@ set -euo pipefail
 # One-command local dev: Supabase via the CLI, the Next.js app via Docker Compose.
 
 # 1. Start Supabase (idempotent) and reset to the demo seed.
-supabase start
+#    Cold-start healthchecks can time out on the first attempt (especially right
+#    after `supabase stop`); retry once before giving up.
+if ! supabase start; then
+  echo "supabase start failed (cold-start healthcheck timeout); retrying…"
+  supabase start
+fi
 supabase db reset
 
 # 2. Read the publishable key from the CLI and write .env.local (never committed).
