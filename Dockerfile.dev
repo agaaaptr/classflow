@@ -1,11 +1,14 @@
-FROM node:22-alpine
+FROM node:24-alpine
 
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+# npm install (not npm ci): the lockfile is generated on macOS, so a strict
+# clean install would miss the Linux/musl optional deps (e.g. @emnapi/* WASM
+# fallbacks of @tailwindcss/oxide). install re-resolves for the container platform.
+RUN npm install --no-audit --no-fund
 
 COPY . .
 
