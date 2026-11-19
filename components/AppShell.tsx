@@ -19,7 +19,7 @@ export default function AppShell({
 
   const linkClass = (href: string) =>
     `rounded-card px-3 py-2 text-sm transition ${
-      pathname === href || pathname.startsWith(href + "/")
+      pathname === href
         ? "bg-gold font-semibold text-navy"
         : "text-white/85 hover:bg-white/10 hover:text-white"
     }`;

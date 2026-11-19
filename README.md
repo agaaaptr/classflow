@@ -18,11 +18,10 @@ npm install
 # Start local Postgres + Auth (first run pulls Docker images)
 supabase start
 
-# Create .env.local from the template, then fill the three values
-# with the URL and keys printed by `supabase start`:
-#   NEXT_PUBLIC_SUPABASE_URL          -> API_URL
+# Create .env.local from the template, then fill the two values
+# with the URL and key printed by `supabase start`:
+#   NEXT_PUBLIC_SUPABASE_URL            -> API_URL
 #   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY -> PUBLISHABLE_KEY
-#   SUPABASE_SECRET_KEY               -> SECRET_KEY
 cp .env.example .env.local
 
 # Replay migrations and seed the demo data

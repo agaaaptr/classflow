@@ -11,7 +11,7 @@ export default async function AdminDashboard() {
   const [classesR, enrollmentsR, invoicesR, earningsR, lessonsR, logbooksR, profilesR] =
     await Promise.all([
       supabase.from("classes").select("id, name, tutor_id, capacity, package_minutes"),
-      supabase.from("enrollments").select("id, class_id, student_id, package_minutes, amount_rp, status"),
+      supabase.from("enrollments").select("id, class_id, student_id, package_minutes, status"),
       supabase.from("invoices").select("id, enrollment_id, student_id, amount_rp, status, paid_at"),
       supabase.from("tutor_earnings").select("class_id, amount_rp, minutes"),
       supabase.from("lessons").select("class_id, starts_at, ends_at"),

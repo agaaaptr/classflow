@@ -37,6 +37,10 @@ An admin can cancel an `unpaid` invoice; the enrollment becomes `cancelled`, fre
 - **Why:** the capacity rule (an unpaid enrollment reserves a seat) would otherwise let a non-paying student block a paying one forever. Cancellation gives the admin the recovery action "oversee invoices" implies.
 - **Rejected:** no cancellation (leaves the blocked-seat hole) and auto-expiry (adds background jobs/timeouts the brief doesn't ask for).
 
+### Catalog visibility (documented)
+
+Students can read the bare class catalog (name, capacity, package) before payment, because the enrollment flow ("enroll and receive an invoice") requires it. The class's schedule, logbooks, and hours-left stay gated by `student_has_paid()`. This is the reading of "students see only classes they have paid for": the *content* is gated; the *catalog* is not.
+
 ## Improvements
 
 ### A — Margin dashboard (admin)
