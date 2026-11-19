@@ -39,23 +39,17 @@ export default function AppShell({
     return () => document.removeEventListener("keydown", onKey);
   }, [menuOpen]);
 
-  const desktopLink = (active: boolean) =>
-    `flex min-h-11 items-center border-b-2 px-3 py-2 text-sm transition ${
-      active
-        ? "border-gold font-semibold text-white"
-        : "border-transparent text-white/85 hover:text-white"
-    }`;
-  const drawerLink = (active: boolean) =>
-    `block min-h-11 rounded-card px-3 py-2 text-sm transition ${
+  const sidebarLink = (active: boolean) =>
+    `flex min-h-11 items-center rounded-card px-3 py-2 text-sm transition ${
       active
         ? "bg-gold font-semibold text-navy"
         : "text-white/85 hover:bg-white/10 hover:text-white"
     }`;
   const logoutClass =
-    "min-h-11 rounded-card px-3 py-2 text-sm text-white/70 transition hover:bg-white/10 hover:text-white";
+    "flex min-h-11 w-full items-center rounded-card px-3 py-2 text-left text-sm text-white/70 transition hover:bg-white/10 hover:text-white";
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen md:flex">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded-card focus:bg-navy focus:px-3 focus:py-2 focus:text-white"
@@ -63,87 +57,101 @@ export default function AppShell({
         Lewati ke konten
       </a>
 
-      <header className="sticky top-0 z-30 bg-navy text-white">
-        <div className="flex items-center gap-3 px-4 py-2">
-          <div className="flex items-baseline gap-3">
-            <span className="text-lg font-semibold tracking-tight">ClassFlow</span>
-            <span className="hidden text-xs font-medium text-white/60 sm:inline">{role}</span>
-          </div>
-
-          <nav aria-label="Navigasi utama" className="ml-auto hidden items-center gap-1 md:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={isActive(item) ? "page" : undefined}
-                className={desktopLink(isActive(item))}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <form action={logout} className="hidden md:block">
-            <button type="submit" className={logoutClass}>
-              Keluar
-            </button>
-          </form>
-
-          <button
-            ref={hamburgerRef}
-            type="button"
-            aria-label={menuOpen ? "Tutup menu" : "Buka menu"}
-            aria-expanded={menuOpen}
-            aria-controls="mobile-nav"
-            onClick={() => setMenuOpen((o) => !o)}
-            className="ml-auto grid min-h-11 place-items-center rounded-card px-2 text-white md:hidden"
-          >
-            <svg
-              aria-hidden
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            >
-              {menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
-            </svg>
-          </button>
+      {/* Mobile header */}
+      <header className="sticky top-0 z-30 flex items-center justify-between gap-3 bg-navy px-4 py-2 text-white md:hidden">
+        <div className="flex items-baseline gap-3">
+          <span className="text-lg font-semibold tracking-tight">ClassFlow</span>
+          <span className="text-xs font-medium text-white/60">{role}</span>
         </div>
+        <button
+          ref={hamburgerRef}
+          type="button"
+          aria-label={menuOpen ? "Tutup menu" : "Buka menu"}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-nav"
+          onClick={() => setMenuOpen((o) => !o)}
+          className="grid min-h-11 place-items-center rounded-card px-2 text-white"
+        >
+          <svg
+            aria-hidden
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          >
+            {menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+          </svg>
+        </button>
+      </header>
 
-        {menuOpen && (
+      {/* Mobile drawer */}
+      {menuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div
+            className="absolute inset-0 bg-navy/40"
+            onClick={() => setMenuOpen(false)}
+            aria-hidden
+          />
           <div
             ref={drawerRef}
             id="mobile-nav"
             role="dialog"
             aria-modal="true"
-            className="border-t border-white/10 px-3 py-2 md:hidden"
+            className="absolute inset-y-0 right-0 w-72 bg-navy p-4 text-white"
           >
-            <nav aria-label="Navigasi utama">
+            <nav aria-label="Navigasi utama" className="flex flex-col gap-1">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   aria-current={isActive(item) ? "page" : undefined}
                   onClick={() => setMenuOpen(false)}
-                  className={drawerLink(isActive(item))}
+                  className={sidebarLink(isActive(item))}
                 >
                   {item.label}
                 </Link>
               ))}
             </nav>
-            <form action={logout}>
-              <button type="submit" className={`${logoutClass} block w-full text-left`}>
+            <form action={logout} className="mt-auto border-t border-white/10 pt-3">
+              <button type="submit" className={logoutClass}>
                 Keluar
               </button>
             </form>
           </div>
-        )}
-      </header>
+        </div>
+      )}
 
-      <main id="main" className="mx-auto w-full max-w-6xl p-4 md:p-8">
+      {/* Desktop sidebar */}
+      <aside className="sticky top-0 z-20 hidden h-screen w-60 shrink-0 flex-col bg-navy text-white md:flex">
+        <div className="px-5 py-5">
+          <div className="text-lg font-semibold tracking-tight">ClassFlow</div>
+          <div className="mt-0.5 text-xs font-medium text-white/60">{role}</div>
+        </div>
+        <nav aria-label="Navigasi utama" className="flex flex-col gap-1 px-3">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={isActive(item) ? "page" : undefined}
+              className={sidebarLink(isActive(item))}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        <div className="mt-auto border-t border-white/10 p-3">
+          <form action={logout}>
+            <button type="submit" className={logoutClass}>
+              Keluar
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      <main id="main" className="min-w-0 flex-1 p-4 md:p-8">
         {children}
       </main>
     </div>

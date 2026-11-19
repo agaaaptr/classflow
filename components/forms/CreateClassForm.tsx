@@ -1,10 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { createClass, type ClassActionState } from "@/lib/actions/classes";
+import { useState, useTransition } from "react";
+import { createClass } from "@/lib/actions/classes";
 import Select from "@/components/ui/Select";
-
-const initialState: ClassActionState = { ok: false, error: null };
 
 const inputClass =
   "mt-1 h-11 w-full rounded-card border border-cloud px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy md:h-10 md:text-sm";
@@ -14,14 +12,33 @@ export default function CreateClassForm({
 }: {
   tutors: { id: string; full_name: string }[];
 }) {
-  const [state, formAction, pending] = useActionState(createClass, initialState);
+  const [name, setName] = useState("");
   const [tutorId, setTutorId] = useState(tutors[0]?.id ?? "");
+  const [studentRate, setStudentRate] = useState("");
+  const [tutorRate, setTutorRate] = useState("");
+  const [capacity, setCapacity] = useState("");
+  const [packageHours, setPackageHours] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    startTransition(async () => {
+      const result = await createClass({
+        name,
+        tutorId,
+        studentRate: Number(studentRate),
+        tutorRate: Number(tutorRate),
+        capacity: Number(capacity),
+        packageHours: Number(packageHours),
+      });
+      if (result && !result.ok) setError(result.error);
+    });
+  }
 
   return (
-    <form
-      action={formAction}
-      className="space-y-4 rounded-card border border-cloud bg-white p-5"
-    >
+    <form onSubmit={submit} className="space-y-4 rounded-card border border-cloud bg-white p-5">
       <h2 className="text-base font-semibold">Buat kelas baru</h2>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -31,8 +48,12 @@ export default function CreateClassForm({
           </label>
           <input
             id="name"
-            name="name"
             required
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              setError(null);
+            }}
             className={inputClass}
             placeholder="Kelas Matematika SMP"
           />
@@ -41,10 +62,12 @@ export default function CreateClassForm({
         <div>
           <span className="block text-sm font-medium">Tutor</span>
           <Select
-            name="tutorId"
             ariaLabel="Tutor"
             value={tutorId}
-            onChange={setTutorId}
+            onChange={(v) => {
+              setTutorId(v);
+              setError(null);
+            }}
             options={tutors.map((t) => ({ value: t.id, label: t.full_name }))}
           />
         </div>
@@ -57,10 +80,14 @@ export default function CreateClassForm({
           </label>
           <input
             id="studentRate"
-            name="studentRate"
             type="number"
             required
             min={1}
+            value={studentRate}
+            onChange={(e) => {
+              setStudentRate(e.target.value);
+              setError(null);
+            }}
             className={inputClass}
             placeholder="100000"
           />
@@ -71,10 +98,14 @@ export default function CreateClassForm({
           </label>
           <input
             id="tutorRate"
-            name="tutorRate"
             type="number"
             required
             min={1}
+            value={tutorRate}
+            onChange={(e) => {
+              setTutorRate(e.target.value);
+              setError(null);
+            }}
             className={inputClass}
             placeholder="75000"
           />
@@ -85,10 +116,14 @@ export default function CreateClassForm({
           </label>
           <input
             id="capacity"
-            name="capacity"
             type="number"
             required
             min={1}
+            value={capacity}
+            onChange={(e) => {
+              setCapacity(e.target.value);
+              setError(null);
+            }}
             className={inputClass}
             placeholder="2"
           />
@@ -99,19 +134,23 @@ export default function CreateClassForm({
           </label>
           <input
             id="packageHours"
-            name="packageHours"
             type="number"
             required
             min={1}
+            value={packageHours}
+            onChange={(e) => {
+              setPackageHours(e.target.value);
+              setError(null);
+            }}
             className={inputClass}
             placeholder="12"
           />
         </div>
       </div>
 
-      {state.error && (
+      {error && (
         <p className="text-sm text-danger-ink" role="alert">
-          {state.error}
+          {error}
         </p>
       )}
 

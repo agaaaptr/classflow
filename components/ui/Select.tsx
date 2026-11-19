@@ -8,7 +8,6 @@ export type SelectOption = { value: string; label: string };
 // close, type-ahead-free but Arrow/Home/End/Enter/Space/Escape/Tab handled.
 export default function Select({
   id,
-  name,
   value,
   onChange,
   options,
@@ -16,7 +15,6 @@ export default function Select({
   ariaLabel,
 }: {
   id?: string;
-  name?: string;
   value: string;
   onChange: (value: string) => void;
   options: SelectOption[];
@@ -158,8 +156,6 @@ export default function Select({
           ))}
         </ul>
       )}
-
-      {name && <input type="hidden" name={name} value={value} />}
     </div>
   );
 }
