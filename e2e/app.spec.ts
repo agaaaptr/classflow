@@ -22,6 +22,17 @@ test("admin sees margin, unpaid invoice, and submitted logbook", async ({ page }
   await expect(page.getByText("Menunggu").first()).toBeVisible(); // Nov logbook submitted
 });
 
+test("only one sidebar item is active at a time", async ({ page }) => {
+  await login(page, "admin@classflow.dev");
+  await page.waitForURL("**/admin");
+  await expect(page.getByRole("link", { name: "Dashboard" })).toHaveAttribute("aria-current", "page");
+
+  await page.getByRole("link", { name: "Kelas" }).click();
+  await page.waitForURL("**/admin/classes");
+  await expect(page.getByRole("link", { name: "Kelas" })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("link", { name: "Dashboard" })).not.toHaveAttribute("aria-current");
+});
+
 test("tutor sees assigned class and submitted logbook", async ({ page }) => {
   await login(page, "tutor1@classflow.dev");
   await page.waitForURL("**/tutor");
@@ -74,7 +85,7 @@ test("admin approves the November logbook", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Preview earnings tutor" })).toBeVisible();
   await expect(page.getByText(/225\.000/).first()).toBeVisible();
 
-  page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "Setujui logbook" }).click();
+  await page.getByRole("button", { name: "Ya" }).click();
   await expect(page.getByText("Disetujui").first()).toBeVisible();
 });

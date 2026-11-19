@@ -1,3 +1,10 @@
-# >>> noir:ignore >>>
-.noir/
-# <<< noir:ignore <<<
+node_modules
+.next
+.git
+.gitignore
+test-results
+playwright-report
+.env*
+docs
+.noir
+.claude

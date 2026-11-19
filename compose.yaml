@@ -1,0 +1,26 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    env_file:
+      - .env.local
+    environment:
+      # The app runs inside a container, so Supabase (which the CLI runs on the
+      # host) is reached via host.docker.internal, not 127.0.0.1.
+      NEXT_PUBLIC_SUPABASE_URL: http://host.docker.internal:54321
+      # Reliable file watching under a bind mount on macOS/Windows.
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 120s

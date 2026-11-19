@@ -35,6 +35,19 @@ Open http://localhost:3000 and sign in with one of the seeded accounts below.
 
 > Port 3000 is used by Docker on this machine; if `npm run dev` reports the port is in use, run `npm run dev -- -p 3001`.
 
+## One-command local dev (Docker)
+
+To run the app in Docker instead of on the host, a single command starts Supabase (via the CLI) and the app (via Docker Compose):
+
+```bash
+npm run dev:docker
+```
+
+This runs `supabase start`, resets the demo seed, writes `.env.local` from the printed publishable key, then builds and starts the app container at **http://localhost:3000** (set `APP_PORT` to override the port). Supabase's own services (Postgres, Auth, Studio) stay in the Supabase CLI's containers; only the Next.js app runs in Docker.
+
+- Stop the app: `docker compose down`.
+- Reset the data: `supabase db reset` (never `docker compose down -v` — the database lives in Supabase's containers).
+
 ## Seeded logins
 
 All six accounts share the password **`Classflow123!`**.
