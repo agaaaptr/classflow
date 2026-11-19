@@ -8,7 +8,13 @@ export default async function StudentLayout({
 }) {
   await requireRole("student");
   return (
-    <AppShell role="Siswa" navItems={[{ href: "/student", label: "Dashboard" }]}>
+    <AppShell
+      role="Siswa"
+      navItems={[
+        { href: "/student", label: "Dashboard", exact: true },
+        { href: "/student/classes", label: "Kelas" },
+      ]}
+    >
       {children}
     </AppShell>
   );

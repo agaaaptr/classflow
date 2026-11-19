@@ -8,7 +8,7 @@ export default async function TutorLayout({
 }) {
   await requireRole("tutor");
   return (
-    <AppShell role="Tutor" navItems={[{ href: "/tutor", label: "Dashboard" }]}>
+    <AppShell role="Tutor" navItems={[{ href: "/tutor", label: "Kelas saya" }]}>
       {children}
     </AppShell>
   );

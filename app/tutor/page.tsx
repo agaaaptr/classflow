@@ -43,7 +43,7 @@ export default async function TutorDashboard() {
   return (
     <div className="space-y-section">
       <header>
-        <h1 className="text-fluid-lg font-semibold">Dashboard Tutor</h1>
+        <h1 className="text-2xl font-semibold">Dashboard Tutor</h1>
         <p className="mt-1 text-sm text-muted">
           Kelas yang Anda ajar dan slip earnings per bulan.
         </p>

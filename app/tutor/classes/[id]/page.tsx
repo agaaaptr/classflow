@@ -1,16 +1,13 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import BackLink from "@/components/BackLink";
 import Badge from "@/components/Badge";
 import ActionButton from "@/components/ActionButton";
 import ScheduleLessonForm from "@/components/forms/ScheduleLessonForm";
-import AddEntryForm from "@/components/forms/AddEntryForm";
-import { ensureLogbook, submitLogbook } from "@/lib/actions/logbooks";
-import {
-  formatDateTimeWIB,
-  formatMinutes,
-  periodOf,
-  currentPeriod,
-} from "@/lib/utils";
+import EmptyState from "@/components/ui/EmptyState";
+import { ensureLogbook } from "@/lib/actions/logbooks";
+import { formatDateTimeWIB, formatMinutes, currentPeriod } from "@/lib/utils";
 
 export default async function TutorClassPage({
   params,
@@ -34,53 +31,20 @@ export default async function TutorClassPage({
   const lessons = lessonsR.data ?? [];
   const logbooks = logbooksR.data ?? [];
 
-  const logbookIds = logbooks.map((l) => l.id);
-  let entries: {
-    id: string;
-    logbook_id: string;
-    lesson_id: string;
-    topic: string;
-    activities: string;
-    observation: string;
-    recommendation: string;
-  }[] = [];
-  if (logbookIds.length) {
-    const { data } = await supabase
-      .from("logbook_entries")
-      .select("id, logbook_id, lesson_id, topic, activities, observation, recommendation")
-      .in("logbook_id", logbookIds);
-    entries = data ?? [];
-  }
-  const entriesByLogbook = new Map<string, typeof entries>();
-  for (const e of entries ?? []) {
-    const list = entriesByLogbook.get(e.logbook_id) ?? [];
-    list.push(e);
-    entriesByLogbook.set(e.logbook_id, list);
-  }
-
-  const lessonById = new Map(lessons.map((l) => [l.id, l]));
-  // "now" is the request time; the page is dynamic (cookies), so this is a
-  // per-request snapshot, not a render-time side effect.
   const now = Date.now(); // eslint-disable-line react-hooks/purity
-  const ended = lessons.filter((l) => new Date(l.ends_at).getTime() <= now);
   const upcoming = lessons.filter((l) => new Date(l.ends_at).getTime() > now);
-
+  const ended = lessons.filter((l) => new Date(l.ends_at).getTime() <= now);
   const period = currentPeriod();
   const currentLogbook = logbooks.find((l) => l.period === period);
-
-  const missingFor = (logbookId: string, lbPeriod: string) => {
-    const entryLessonIds = new Set((entriesByLogbook.get(logbookId) ?? []).map((e) => e.lesson_id));
-    return ended.filter(
-      (l) => periodOf(new Date(l.ends_at)) === lbPeriod && !entryLessonIds.has(l.id),
-    );
-  };
 
   const card = "rounded-card border border-cloud bg-white";
 
   return (
     <div className="space-y-section">
+      <BackLink href="/tutor" label="Kelas saya" />
+
       <header>
-        <h1 className="text-fluid-lg font-semibold">{cls.name}</h1>
+        <h1 className="text-2xl font-semibold">{cls.name}</h1>
         <p className="mt-1 text-sm text-muted">
           Kapasitas {cls.capacity} · Paket {formatMinutes(cls.package_minutes)}
         </p>
@@ -88,25 +52,25 @@ export default async function TutorClassPage({
 
       {/* Schedule */}
       <section className={card} aria-labelledby="schedule-heading">
-        <h2 id="schedule-heading" className="border-b border-cloud px-5 py-3 text-sm font-semibold">
-          Jadwal lesson
-        </h2>
+        <div className="border-b border-cloud px-5 py-3">
+          <h2 id="schedule-heading" className="text-base font-semibold">Jadwal lesson</h2>
+        </div>
         <div className="space-y-6 p-5">
           <ScheduleLessonForm classId={cls.id} />
 
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-cloud text-left text-muted">
-                  <th className="py-1.5 pr-4 font-medium">Waktu (WIB)</th>
-                  <th className="py-1.5 font-medium">Status</th>
+                <tr className="border-b border-cloud text-left">
+                  <th className="py-1.5 pr-4 text-xs font-semibold uppercase tracking-wider text-muted">Waktu (WIB)</th>
+                  <th className="py-1.5 text-xs font-semibold uppercase tracking-wider text-muted">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {upcoming.map((l) => (
                   <tr key={l.id} className="border-b border-cloud last:border-0">
                     <td className="py-1.5 pr-4">{formatDateTimeWIB(l.starts_at)}</td>
-                    <td className="py-1.5"><Badge status="submitted" /> <span className="text-xs text-muted">Akan datang</span></td>
+                    <td className="py-1.5 text-muted">Akan datang</td>
                   </tr>
                 ))}
                 {ended.map((l) => (
@@ -126,8 +90,8 @@ export default async function TutorClassPage({
 
       {/* Logbooks */}
       <section className={card} aria-labelledby="logbook-heading">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-cloud px-5 py-3">
-          <h2 id="logbook-heading" className="text-sm font-semibold">Logbook bulanan</h2>
+        <div className="flex items-center justify-between gap-3 border-b border-cloud px-5 py-3">
+          <h2 id="logbook-heading" className="text-base font-semibold">Logbook bulanan</h2>
           {!currentLogbook && (
             <ActionButton
               action={ensureLogbook}
@@ -139,71 +103,23 @@ export default async function TutorClassPage({
           )}
         </div>
 
-        <div className="divide-y divide-cloud">
-          {logbooks.map((lb) => {
-            const lbEntries = entriesByLogbook.get(lb.id) ?? [];
-            const missing = missingFor(lb.id, lb.period);
-            const isDraft = lb.status === "draft";
-            return (
-              <div key={lb.id} className="px-5 py-4">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">Periode {lb.period}</span>
-                    <Badge status={lb.status} />
-                  </div>
-                  {isDraft && missing.length === 0 && (
-                    <ActionButton
-                      action={submitLogbook}
-                      args={[lb.id]}
-                      confirmText="Submit logbook untuk direview admin?"
-                      className="rounded-card bg-navy px-3 py-1.5 text-sm font-medium text-white disabled:opacity-60"
-                    >
-                      Submit logbook
-                    </ActionButton>
-                  )}
-                </div>
-
-                {isDraft && missing.length > 0 && (
-                  <p className="mt-2 text-sm text-muted">
-                    {missing.length} lesson sudah berakhir dan belum ada entry.
-                  </p>
-                )}
-
-                <div className="mt-3 space-y-2">
-                  {lbEntries.map((e) => (
-                    <div key={e.id} className="rounded-card border border-cloud bg-surface px-3 py-2">
-                      <div className="text-sm font-medium">{e.topic}</div>
-                      <div className="text-xs text-muted">
-                        {lessonById.get(e.lesson_id) ? formatDateTimeWIB(lessonById.get(e.lesson_id)!.starts_at) : ""}
-                      </div>
-                    </div>
-                  ))}
-                  {lbEntries.length === 0 && (
-                    <p className="text-sm text-muted">Belum ada entry.</p>
-                  )}
-                </div>
-
-                {isDraft && missing.length > 0 && (
-                  <div className="mt-4 rounded-card border border-cloud p-4">
-                    <h3 className="text-sm font-semibold">Tambah entry</h3>
-                    <div className="mt-3">
-                      <AddEntryForm
-                        logbookId={lb.id}
-                        lessons={missing.map((l) => ({
-                          id: l.id,
-                          label: formatDateTimeWIB(l.starts_at),
-                        }))}
-                      />
-                    </div>
-                  </div>
-                )}
+        <div className="divide-y divide-cloud/70">
+          {logbooks.map((lb) => (
+            <div key={lb.id} className="flex items-center justify-between gap-3 px-5 py-3">
+              <div className="flex items-center gap-3">
+                <span className="font-medium">Periode {lb.period}</span>
+                <Badge status={lb.status} />
               </div>
-            );
-          })}
-          {logbooks.length === 0 && !currentLogbook && (
-            <p className="px-5 py-4 text-sm text-muted">
-              Belum ada logbook. Buat logbook bulan ini untuk mulai mengisi.
-            </p>
+              <Link
+                href={`/tutor/logbooks/${lb.id}`}
+                className="rounded-card border border-cloud px-3 py-1.5 text-sm font-medium text-navy hover:bg-surface"
+              >
+                {lb.status === "draft" ? "Isi logbook" : "Lihat"}
+              </Link>
+            </div>
+          ))}
+          {logbooks.length === 0 && (
+            <EmptyState title="Belum ada logbook" description="Buat logbook bulan ini untuk mulai mengisi entry." />
           )}
         </div>
       </section>

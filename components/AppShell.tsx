@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/actions/auth";
 
-type NavItem = { href: string; label: string };
+type NavItem = { href: string; label: string; exact?: boolean };
 
 export default function AppShell({
   role,
@@ -17,9 +17,14 @@ export default function AppShell({
 }) {
   const pathname = usePathname();
 
-  const linkClass = (href: string) =>
+  const isActive = (item: NavItem) =>
+    item.exact
+      ? pathname === item.href
+      : pathname === item.href || pathname.startsWith(item.href + "/");
+
+  const linkClass = (active: boolean) =>
     `flex min-h-11 items-center rounded-card px-3 py-2 text-sm transition ${
-      pathname === href
+      active
         ? "bg-gold font-semibold text-navy"
         : "text-white/85 hover:bg-white/10 hover:text-white"
     }`;
@@ -33,31 +38,26 @@ export default function AppShell({
         Lewati ke konten
       </a>
 
-      <aside className="flex flex-col bg-navy text-white md:w-60 md:shrink-0">
+      <aside className="sticky top-0 z-20 flex flex-col bg-navy text-white md:h-screen md:w-60 md:shrink-0">
         <div className="px-5 py-5">
           <div className="text-lg font-semibold tracking-tight">ClassFlow</div>
-          <div className="mt-0.5 text-xs font-medium uppercase tracking-widest text-gold">
-            {role}
-          </div>
+          <div className="mt-0.5 text-xs font-medium text-white/60">{role}</div>
         </div>
 
         <nav
           aria-label="Navigasi utama"
           className="flex gap-1 overflow-x-auto whitespace-nowrap px-3 pb-3 md:flex-col md:overflow-visible md:whitespace-normal"
         >
-          {navItems.map((item) => {
-            const active = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className={linkClass(item.href)}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={isActive(item) ? "page" : undefined}
+              className={linkClass(isActive(item))}
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="mt-auto border-t border-white/10 p-3">

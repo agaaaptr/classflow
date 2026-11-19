@@ -2,19 +2,18 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import Badge from "@/components/Badge";
 import ActionButton from "@/components/ActionButton";
+import EmptyState from "@/components/ui/EmptyState";
 import { cancelInvoice } from "@/lib/actions/invoices";
-import { formatRupiah, formatMinutes, hoursLeft } from "@/lib/utils";
+import { formatRupiah, hoursLeft } from "@/lib/utils";
 
-const sectionHeader =
-  "flex items-baseline justify-between gap-3 border-b border-cloud px-5 py-3";
-const sectionTitle = "text-xs font-semibold uppercase tracking-wider text-muted";
+const sectionTitle = "text-base font-semibold";
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
 
   const [classesR, enrollmentsR, invoicesR, earningsR, lessonsR, logbooksR, profilesR] =
     await Promise.all([
-      supabase.from("classes").select("id, name, tutor_id, capacity, package_minutes"),
+      supabase.from("classes").select("id, name, tutor_id"),
       supabase.from("enrollments").select("id, class_id, student_id, package_minutes, status"),
       supabase.from("invoices").select("id, enrollment_id, student_id, amount_rp, status, paid_at"),
       supabase.from("tutor_earnings").select("class_id, amount_rp, minutes"),
@@ -51,63 +50,59 @@ export default async function AdminDashboard() {
   }
 
   const costByClass = new Map<string, number>();
-  const taughtByClass = new Map<string, number>();
   for (const e of earnings) {
     costByClass.set(e.class_id, (costByClass.get(e.class_id) ?? 0) + e.amount_rp);
-    taughtByClass.set(e.class_id, (taughtByClass.get(e.class_id) ?? 0) + e.minutes);
   }
 
   const unpaid = invoices.filter((i) => i.status === "unpaid");
   const pendingLogbooks = logbooks.filter((lb) => lb.status === "submitted");
 
-  const studentBalances = enrollments
+  const lowBalance = enrollments
     .filter((e) => e.status === "active")
-    .flatMap((e) => {
+    .filter((e) => {
       const inv = invoiceByEnrollment.get(e.id);
-      if (!inv || inv.status !== "paid") return [];
+      if (!inv || inv.status !== "paid") return false;
       const left = hoursLeft(e.package_minutes, lessonsByClass.get(e.class_id) ?? [], inv.paid_at);
-      return [{ enrollment: e, left }];
-    });
+      return left < 60;
+    }).length;
 
   const totalMargin = classes.reduce(
     (sum, c) => sum + (revenueByClass.get(c.id) ?? 0) - (costByClass.get(c.id) ?? 0),
     0,
   );
   const unpaidTotal = unpaid.reduce((sum, i) => sum + i.amount_rp, 0);
-  const lowBalance = studentBalances.filter((s) => s.left < 60).length;
 
   const card = "rounded-card border border-cloud bg-white";
 
   return (
     <div className="space-y-section">
       <header>
-        <h1 className="text-fluid-lg font-semibold">Dashboard Admin</h1>
-        <p className="mt-1 text-sm text-muted">
-          Pantau margin, invoice, dan logbook yang perlu tindakan.
-        </p>
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <p className="mt-1 text-sm text-muted">Yang butuh tindakan Anda hari ini.</p>
       </header>
 
-      {/* Stat strip */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {[
-          { label: "Margin total", value: formatRupiah(totalMargin), tone: totalMargin < 0 ? "text-danger" : "text-navy" },
-          { label: "Belum dibayar", value: `${unpaid.length} · ${formatRupiah(unpaidTotal)}`, tone: "text-navy" },
-          { label: "Logbook menunggu", value: String(pendingLogbooks.length), tone: "text-navy" },
-          { label: "Siswa sisa < 1 jam", value: String(lowBalance), tone: lowBalance > 0 ? "text-danger" : "text-navy" },
+          { label: "Margin total", value: formatRupiah(totalMargin), tone: totalMargin < 0 ? "text-danger" : "text-navy", href: "/admin/classes" },
+          { label: "Belum dibayar", value: `${unpaid.length} · ${formatRupiah(unpaidTotal)}`, tone: "text-navy", href: "/admin/invoices" },
+          { label: "Logbook menunggu", value: String(pendingLogbooks.length), tone: "text-navy", href: "/admin/logbooks" },
+          { label: "Siswa sisa < 1 jam", value: String(lowBalance), tone: lowBalance > 0 ? "text-danger" : "text-navy", href: "/admin/students" },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-card border border-cloud bg-white px-4 py-3">
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted">{stat.label}</div>
-            <div className={`mt-1 text-2xl font-semibold tabular-nums ${stat.tone}`}>{stat.value}</div>
-          </div>
+          <Link
+            key={stat.label}
+            href={stat.href}
+            className="rounded-card border border-cloud bg-white px-4 py-3 transition hover:bg-surface"
+          >
+            <div className="text-xs font-medium text-muted">{stat.label}</div>
+            <div className={`mt-1 text-2xl font-semibold ${stat.tone}`}>{stat.value}</div>
+          </Link>
         ))}
       </div>
 
-      {/* Action queue: unpaid invoices */}
       <section className={card} aria-labelledby="unpaid-heading">
-        <div className={sectionHeader}>
-          <h2 id="unpaid-heading" className={sectionTitle}>
-            Invoice belum dibayar · {unpaid.length}
-          </h2>
+        <div className="flex items-center justify-between gap-3 border-b border-cloud px-5 py-3">
+          <h2 id="unpaid-heading" className={sectionTitle}>Invoice belum dibayar</h2>
+          <Link href="/admin/invoices" className="text-sm font-medium text-navy underline">Lihat semua</Link>
         </div>
         <div className="divide-y divide-cloud/70">
           {unpaid.map((inv) => {
@@ -124,9 +119,11 @@ export default async function AdminDashboard() {
                 <ActionButton
                   action={cancelInvoice}
                   args={[inv.id]}
+                  variant="danger"
                   confirmText="Batalkan invoice ini? Kursinya akan dilepas."
                   confirmTone="danger"
-                  className="ml-auto shrink-0 rounded-card border border-danger px-3 py-1.5 text-sm font-medium text-danger hover:bg-danger/10 disabled:opacity-60"
+                  successMessage="Invoice dibatalkan"
+                  className="shrink-0"
                 >
                   Batalkan
                 </ActionButton>
@@ -134,154 +131,38 @@ export default async function AdminDashboard() {
             );
           })}
           {unpaid.length === 0 && (
-            <p className="px-5 py-4 text-sm text-success">Semua invoice sudah dibayar.</p>
+            <EmptyState title="Semua invoice sudah dibayar" description="Tidak ada yang perlu ditagih." />
           )}
         </div>
       </section>
 
-      {/* Action queue: logbooks awaiting approval */}
       <section className={card} aria-labelledby="logbook-heading">
-        <div className={sectionHeader}>
-          <h2 id="logbook-heading" className={sectionTitle}>
-            Logbook · {pendingLogbooks.length} menunggu
-          </h2>
+        <div className="flex items-center justify-between gap-3 border-b border-cloud px-5 py-3">
+          <h2 id="logbook-heading" className={sectionTitle}>Logbook menunggu persetujuan</h2>
+          <Link href="/admin/logbooks" className="text-sm font-medium text-navy underline">Lihat semua</Link>
         </div>
         <div className="divide-y divide-cloud/70">
-          {logbooks.map((lb) => {
+          {pendingLogbooks.map((lb) => {
             const cls = classById.get(lb.class_id);
             return (
               <div key={lb.id} className="flex items-center justify-between gap-3 px-5 py-3">
-                <div className="min-w-0">
-                  <div className="truncate font-medium">{cls?.name ?? "-"}</div>
-                  <div className="text-sm text-muted">Periode {lb.period}</div>
-                </div>
-                <div className="flex shrink-0 items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="font-medium">{cls?.name ?? "-"}</span>
+                  <span className="text-sm text-muted">Periode {lb.period}</span>
                   <Badge status={lb.status} />
-                  {lb.status === "submitted" ? (
-                    <Link
-                      href={`/admin/logbooks/${lb.id}`}
-                      className="rounded-card bg-navy px-3 py-1.5 text-sm font-medium text-white"
-                    >
-                      Tinjau &amp; setujui
-                    </Link>
-                  ) : (
-                    <Link href={`/admin/logbooks/${lb.id}`} className="text-sm font-medium text-navy underline">
-                      Lihat
-                    </Link>
-                  )}
                 </div>
+                <Link
+                  href={`/admin/logbooks/${lb.id}`}
+                  className="shrink-0 rounded-card bg-navy px-3 py-1.5 text-sm font-medium text-white"
+                >
+                  Tinjau &amp; setujui
+                </Link>
               </div>
             );
           })}
-          {logbooks.length === 0 && (
-            <p className="px-5 py-4 text-sm text-muted">Belum ada logbook.</p>
+          {pendingLogbooks.length === 0 && (
+            <EmptyState title="Tidak ada logbook menunggu" description="Semua logbook sudah diproses." />
           )}
-        </div>
-      </section>
-
-      {/* Report: margin per class */}
-      <section className={card} aria-labelledby="margin-heading">
-        <div className={sectionHeader}>
-          <h2 id="margin-heading" className={sectionTitle}>Margin per kelas</h2>
-        </div>
-
-        {/* Desktop table */}
-        <div className="hidden overflow-x-auto md:block">
-          <table className="w-full text-sm tabular-nums">
-            <thead>
-              <tr className="border-b border-cloud text-left">
-                <th className="px-5 py-2 text-xs font-semibold uppercase tracking-wider text-muted">Kelas</th>
-                <th className="px-5 py-2 text-xs font-semibold uppercase tracking-wider text-muted">Tutor</th>
-                <th className="px-5 py-2 text-right text-xs font-semibold uppercase tracking-wider text-muted">Pendapatan</th>
-                <th className="px-5 py-2 text-right text-xs font-semibold uppercase tracking-wider text-muted">Biaya tutor</th>
-                <th className="px-5 py-2 text-right text-xs font-semibold uppercase tracking-wider text-muted">Jam diajar</th>
-                <th className="px-5 py-2 text-right text-xs font-semibold uppercase tracking-wider text-muted">Margin</th>
-              </tr>
-            </thead>
-            <tbody>
-              {classes.map((c) => {
-                const revenue = revenueByClass.get(c.id) ?? 0;
-                const cost = costByClass.get(c.id) ?? 0;
-                const taught = taughtByClass.get(c.id) ?? 0;
-                const margin = revenue - cost;
-                return (
-                  <tr key={c.id} className="border-b border-cloud/70 last:border-0">
-                    <td className="px-5 py-2.5 font-medium">{c.name}</td>
-                    <td className="px-5 py-2.5">{nameById.get(c.tutor_id) ?? "-"}</td>
-                    <td className="px-5 py-2.5 text-right">{formatRupiah(revenue)}</td>
-                    <td className="px-5 py-2.5 text-right">{formatRupiah(cost)}</td>
-                    <td className="px-5 py-2.5 text-right">{taught > 0 ? formatMinutes(taught) : "-"}</td>
-                    <td className={`px-5 py-2.5 text-right font-semibold ${margin < 0 ? "text-danger" : "text-navy"}`}>
-                      {formatRupiah(margin)}
-                    </td>
-                  </tr>
-                );
-              })}
-              {classes.length === 0 && (
-                <tr><td colSpan={6} className="px-5 py-4 text-muted">Belum ada kelas.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Mobile cards */}
-        <div className="divide-y divide-cloud/70 md:hidden">
-          {classes.map((c) => {
-            const revenue = revenueByClass.get(c.id) ?? 0;
-            const cost = costByClass.get(c.id) ?? 0;
-            const margin = revenue - cost;
-            return (
-              <div key={c.id} className="px-5 py-3">
-                <div className="font-medium">{c.name}</div>
-                <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                  <div><dt className="text-muted">Pendapatan</dt><dd className="tabular-nums">{formatRupiah(revenue)}</dd></div>
-                  <div><dt className="text-muted">Biaya tutor</dt><dd className="tabular-nums">{formatRupiah(cost)}</dd></div>
-                  <div><dt className="text-muted">Margin</dt><dd className={`font-semibold tabular-nums ${margin < 0 ? "text-danger" : "text-navy"}`}>{formatRupiah(margin)}</dd></div>
-                  <div><dt className="text-muted">Tutor</dt><dd>{nameById.get(c.tutor_id) ?? "-"}</dd></div>
-                </dl>
-              </div>
-            );
-          })}
-          {classes.length === 0 && <p className="px-5 py-4 text-sm text-muted">Belum ada kelas.</p>}
-        </div>
-      </section>
-
-      {/* Report: hours left */}
-      <section className={card} aria-labelledby="balance-heading">
-        <div className={sectionHeader}>
-          <h2 id="balance-heading" className={sectionTitle}>Sisa jam siswa</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm tabular-nums">
-            <thead>
-              <tr className="border-b border-cloud text-left">
-                <th className="px-5 py-2 text-xs font-semibold uppercase tracking-wider text-muted">Siswa</th>
-                <th className="px-5 py-2 text-xs font-semibold uppercase tracking-wider text-muted">Kelas</th>
-                <th className="px-5 py-2 text-right text-xs font-semibold uppercase tracking-wider text-muted">Paket</th>
-                <th className="px-5 py-2 text-right text-xs font-semibold uppercase tracking-wider text-muted">Terpakai</th>
-                <th className="px-5 py-2 text-right text-xs font-semibold uppercase tracking-wider text-muted">Sisa</th>
-              </tr>
-            </thead>
-            <tbody>
-              {studentBalances.map(({ enrollment, left }) => {
-                const cls = classById.get(enrollment.class_id);
-                return (
-                  <tr key={enrollment.id} className="border-b border-cloud/70 last:border-0">
-                    <td className="px-5 py-2.5 font-medium">{nameById.get(enrollment.student_id) ?? "-"}</td>
-                    <td className="px-5 py-2.5">{cls?.name ?? "-"}</td>
-                    <td className="px-5 py-2.5 text-right">{formatMinutes(enrollment.package_minutes)}</td>
-                    <td className="px-5 py-2.5 text-right">{formatMinutes(enrollment.package_minutes - left)}</td>
-                    <td className={`px-5 py-2.5 text-right font-semibold ${left < 60 ? "text-danger" : "text-navy"}`}>
-                      {formatMinutes(left)}
-                    </td>
-                  </tr>
-                );
-              })}
-              {studentBalances.length === 0 && (
-                <tr><td colSpan={5} className="px-5 py-4 text-muted">Belum ada siswa yang membayar.</td></tr>
-              )}
-            </tbody>
-          </table>
         </div>
       </section>
     </div>

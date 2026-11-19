@@ -29,6 +29,6 @@ export async function scheduleLesson(
     return { ok: false, error: msg };
   }
 
-  revalidatePath("/tutor/schedule");
+  revalidatePath(`/tutor/classes/${classId}`);
   return { ok: true, error: null };
 }

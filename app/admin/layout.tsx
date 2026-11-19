@@ -11,8 +11,11 @@ export default async function AdminLayout({
     <AppShell
       role="Admin"
       navItems={[
-        { href: "/admin", label: "Dashboard" },
+        { href: "/admin", label: "Dashboard", exact: true },
         { href: "/admin/classes", label: "Kelas" },
+        { href: "/admin/invoices", label: "Invoice" },
+        { href: "/admin/logbooks", label: "Logbook" },
+        { href: "/admin/students", label: "Siswa" },
       ]}
     >
       {children}

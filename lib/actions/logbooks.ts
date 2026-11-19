@@ -4,6 +4,7 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import type { ActionResult } from "./enrollments";
 
 export async function ensureLogbook(
@@ -74,6 +75,11 @@ export async function submitLogbook(logbookId: string): Promise<ActionResult> {
   await requireRole("tutor");
 
   const supabase = await createClient();
+  const { data: logbook } = await supabase
+    .from("logbooks")
+    .select("class_id")
+    .eq("id", logbookId)
+    .single();
   const { error } = await supabase
     .from("logbooks")
     .update({ status: "submitted" })
@@ -87,8 +93,8 @@ export async function submitLogbook(logbookId: string): Promise<ActionResult> {
   }
 
   revalidatePath(`/tutor/logbooks/${logbookId}`);
-  revalidatePath("/tutor");
-  return { ok: true, error: null };
+  if (logbook?.class_id) revalidatePath(`/tutor/classes/${logbook.class_id}`);
+  redirect(logbook?.class_id ? `/tutor/classes/${logbook.class_id}` : "/tutor");
 }
 
 export async function approveLogbook(
@@ -97,12 +103,12 @@ export async function approveLogbook(
   await requireRole("admin");
 
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("approve_logbook", {
+  const { error } = await supabase.rpc("approve_logbook", {
     p_logbook_id: logbookId,
   });
   if (error) return { ok: false, error: "Gagal approve logbook." };
 
   revalidatePath(`/admin/logbooks/${logbookId}`);
   revalidatePath("/admin");
-  return { ok: true, error: null, total: data };
+  redirect("/admin");
 }

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 const createClassSchema = z.object({
   name: z.string().trim().min(1, "Nama kelas wajib diisi"),
@@ -48,5 +49,5 @@ export async function createClass(
 
   revalidatePath("/admin/classes");
   revalidatePath("/admin");
-  return { ok: true, error: null };
+  redirect("/admin/classes");
 }

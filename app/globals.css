@@ -12,17 +12,25 @@
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --radius-card: 6px;
 
-  --spacing-section: clamp(1.5rem, 1rem + 2vw, 3rem);
-  --text-fluid-lg: clamp(1.125rem, 1rem + 0.4vw, 1.5rem);
+  --spacing-section: 2rem;
 }
 
 :root {
   color-scheme: light;
 }
 
+html,
+body {
+  /* Kill the rubber-band overscroll so the sidebar never shows a gap at the
+     top/bottom edge when force-scrolled. */
+  overscroll-behavior-y: none;
+}
+
 body {
   background-color: var(--color-surface);
   color: var(--color-navy);
+  font-optical-sizing: auto;
+  font-feature-settings: "tnum" 1;
 }
 
 /* Skeleton: reserved box that never animates width/height (no CLS). */

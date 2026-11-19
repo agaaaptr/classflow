@@ -1,14 +1,10 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import Badge from "@/components/Badge";
 import ActionButton from "@/components/ActionButton";
-import { enrollStudent } from "@/lib/actions/enrollments";
+import EmptyState from "@/components/ui/EmptyState";
 import { payInvoice } from "@/lib/actions/invoices";
-import {
-  formatRupiah,
-  formatMinutes,
-  formatDateTimeWIB,
-  hoursLeft,
-} from "@/lib/utils";
+import { formatRupiah, formatMinutes, formatDateTimeWIB, hoursLeft } from "@/lib/utils";
 
 export default async function StudentDashboard() {
   const supabase = await createClient();
@@ -52,36 +48,37 @@ export default async function StudentDashboard() {
     entries = data ?? [];
   }
   const entriesByLogbook = new Map<string, typeof entries>();
-  for (const e of entries ?? []) {
+  for (const e of entries) {
     const list = entriesByLogbook.get(e.logbook_id) ?? [];
     list.push(e);
     entriesByLogbook.set(e.logbook_id, list);
   }
 
   const activeEnrollments = enrollments.filter((e) => e.status === "active");
-  const enrolledClassIds = new Set(activeEnrollments.map((e) => e.class_id));
-  const available = classes.filter((c) => !enrolledClassIds.has(c.id));
-
-  // "now" is the request time; the page is dynamic (cookies), so this is a
-  // per-request snapshot, not a render-time side effect.
   const now = Date.now(); // eslint-disable-line react-hooks/purity
+
   const card = "rounded-card border border-cloud bg-white";
 
   return (
     <div className="space-y-section">
-      <header>
-        <h1 className="text-fluid-lg font-semibold">Dashboard Siswa</h1>
-        <p className="mt-1 text-sm text-muted">
-          Kelas saya, sisa jam, jadwal, dan logbook yang sudah disetujui.
-        </p>
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">Dashboard</h1>
+          <p className="mt-1 text-sm text-muted">Kelas saya, sisa jam, jadwal, dan logbook.</p>
+        </div>
+        <Link
+          href="/student/classes"
+          className="rounded-card bg-navy px-4 py-2 text-sm font-semibold text-white"
+        >
+          Lihat kelas tersedia
+        </Link>
       </header>
 
-      {/* My classes */}
       <section className={card} aria-labelledby="mine-heading">
-        <h2 id="mine-heading" className="border-b border-cloud px-5 py-3 text-sm font-semibold">
+        <h2 id="mine-heading" className="border-b border-cloud px-5 py-3 text-base font-semibold">
           Kelas saya
         </h2>
-        <div className="divide-y divide-cloud">
+        <div className="divide-y divide-cloud/70" aria-live="polite">
           {activeEnrollments.map((enr) => {
             const cls = classById.get(enr.class_id);
             const inv = invoiceByEnrollment.get(enr.id);
@@ -116,7 +113,10 @@ export default async function StudentDashboard() {
                     <ActionButton
                       action={payInvoice}
                       args={[inv.id]}
-                      className="rounded-card bg-success px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                      variant="success"
+                      confirmText={`Bayar invoice ${formatRupiah(inv.amount_rp)}? Pembayaran bersifat simulasi.`}
+                      successMessage="Pembayaran berhasil"
+                      className="shrink-0 rounded-card px-4 py-2 text-sm font-semibold"
                     >
                       Bayar
                     </ActionButton>
@@ -127,7 +127,7 @@ export default async function StudentDashboard() {
                   <div className="mt-3 space-y-3">
                     {upcoming.length > 0 && (
                       <div>
-                        <div className="text-xs font-medium uppercase tracking-wide text-muted">Jadwal berikutnya</div>
+                        <div className="text-sm font-medium text-muted">Jadwal berikutnya</div>
                         <ul className="mt-1 space-y-1 text-sm">
                           {upcoming.slice(0, 5).map((l) => (
                             <li key={l.starts_at}>{formatDateTimeWIB(l.starts_at)}</li>
@@ -138,7 +138,7 @@ export default async function StudentDashboard() {
 
                     {classLogbooks.length > 0 && (
                       <div>
-                        <div className="text-xs font-medium uppercase tracking-wide text-muted">Logbook disetujui</div>
+                        <div className="text-sm font-medium text-muted">Logbook disetujui</div>
                         <div className="mt-1 space-y-2">
                           {classLogbooks.map((lb) => (
                             <div key={lb.id} className="rounded-card border border-cloud bg-surface px-3 py-2">
@@ -165,36 +165,15 @@ export default async function StudentDashboard() {
             );
           })}
           {activeEnrollments.length === 0 && (
-            <p className="px-5 py-4 text-sm text-muted">Belum terdaftar di kelas mana pun.</p>
-          )}
-        </div>
-      </section>
-
-      {/* Available classes */}
-      <section className={card} aria-labelledby="available-heading">
-        <h2 id="available-heading" className="border-b border-cloud px-5 py-3 text-sm font-semibold">
-          Kelas tersedia
-        </h2>
-        <div className="divide-y divide-cloud">
-          {available.map((c) => (
-            <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
-              <div>
-                <div className="font-medium">{c.name}</div>
-                <div className="text-sm text-muted">
-                  Paket {formatMinutes(c.package_minutes)} · Kapasitas {c.capacity}
-                </div>
-              </div>
-              <ActionButton
-                action={enrollStudent}
-                args={[c.id]}
-                className="rounded-card bg-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
-              >
-                Daftar
-              </ActionButton>
-            </div>
-          ))}
-          {available.length === 0 && (
-            <p className="px-5 py-4 text-sm text-muted">Tidak ada kelas lain yang tersedia.</p>
+            <EmptyState
+              title="Belum terdaftar di kelas mana pun"
+              description="Pilih kelas yang tersedia untuk mendaftar."
+              action={
+                <Link href="/student/classes" className="rounded-card bg-navy px-4 py-2 text-sm font-semibold text-white">
+                  Lihat kelas tersedia
+                </Link>
+              }
+            />
           )}
         </div>
       </section>

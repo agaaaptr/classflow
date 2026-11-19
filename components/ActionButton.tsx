@@ -2,6 +2,16 @@
 
 import { useTransition, useState } from "react";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { toast } from "@/components/ui/Toast";
+
+const BASE =
+  "inline-flex items-center justify-center rounded-card px-3 py-1.5 text-sm font-medium disabled:opacity-60";
+const VARIANTS: Record<string, string> = {
+  primary: "bg-navy text-white",
+  secondary: "border border-cloud text-navy hover:bg-surface",
+  danger: "border border-danger text-danger hover:bg-danger/10",
+  success: "bg-success text-white",
+};
 
 // Generic client wrapper for a server action. `action` is the imported server
 // action reference (serializable); `args` are its serializable arguments.
@@ -9,16 +19,20 @@ export default function ActionButton({
   action,
   args = [],
   children,
-  className = "",
+  variant = "primary",
+  className,
   confirmText,
   confirmTone = "default",
+  successMessage,
 }: {
   action: (...args: never[]) => Promise<{ ok: boolean; error: string | null }>;
   args?: unknown[];
   children: React.ReactNode;
+  variant?: "primary" | "secondary" | "danger" | "success";
   className?: string;
   confirmText?: string;
   confirmTone?: "default" | "danger";
+  successMessage?: string;
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +42,8 @@ export default function ActionButton({
     setError(null);
     startTransition(async () => {
       const result = await action(...(args as never[]));
-      if (!result.ok) setError(result.error);
+      if (result && !result.ok) setError(result.error);
+      else if (result?.ok && successMessage) toast(successMessage);
     });
   }
 
@@ -39,10 +54,7 @@ export default function ActionButton({
         onClick={() => (confirmText ? setConfirmOpen(true) : run())}
         disabled={pending}
         aria-busy={pending}
-        className={
-          className ||
-          "rounded-card bg-navy px-3 py-1.5 text-sm font-medium text-white disabled:opacity-60"
-        }
+        className={className ?? `${BASE} ${VARIANTS[variant]}`}
       >
         {pending ? <span className="spinner" aria-hidden /> : children}
       </button>
