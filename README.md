@@ -18,9 +18,8 @@ npm install
 # Start local Postgres + Auth (first run pulls Docker images)
 supabase start
 
-# Create .env.local from the template, then fill the two values
-# with the URL and key printed by `supabase start`:
-#   NEXT_PUBLIC_SUPABASE_URL            -> API_URL
+# Copy the env template, then fill the publishable key with the value printed
+# by `supabase start` (the local URL stays at http://127.0.0.1:54321):
 #   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY -> PUBLISHABLE_KEY
 cp .env.example .env.local
 
@@ -33,7 +32,7 @@ npm run dev
 
 Open http://localhost:3000 and sign in with one of the seeded accounts below.
 
-> Port 3000 is used by Docker on this machine; if `npm run dev` reports the port is in use, run `npm run dev -- -p 3001`.
+> If port 3000 is already in use, run `npm run dev -- -p 3001`.
 
 ## One-command local dev (Docker)
 
