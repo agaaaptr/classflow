@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition, useState } from "react";
+import { useTransition, useState, type FormEvent } from "react";
 import { scheduleLesson } from "@/lib/actions/lessons";
 import { wibToIso } from "@/lib/utils";
 
@@ -12,7 +12,7 @@ export default function ScheduleLessonForm({ classId }: { classId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  function submit(e: React.FormEvent) {
+  function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     startTransition(async () => {

@@ -83,3 +83,8 @@ export function periodOf(date: Date): string {
 export function currentPeriod(): string {
   return periodOf(new Date());
 }
+
+// Format a digit string with id-ID thousand separators ("100000" -> "100.000").
+export function formatThousands(value: string): string {
+  return value.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}

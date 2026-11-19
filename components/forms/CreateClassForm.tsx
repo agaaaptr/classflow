@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type FormEvent } from "react";
 import { createClass } from "@/lib/actions/classes";
 import Select from "@/components/ui/Select";
+import { formatThousands } from "@/lib/utils";
 
 const inputClass =
   "mt-1 h-11 w-full rounded-card border border-cloud px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy md:h-10 md:text-sm";
@@ -21,15 +22,15 @@ export default function CreateClassForm({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  function submit(e: React.FormEvent) {
+  function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     startTransition(async () => {
       const result = await createClass({
         name,
         tutorId,
-        studentRate: Number(studentRate),
-        tutorRate: Number(tutorRate),
+        studentRate: Number(studentRate.replace(/\./g, "")),
+        tutorRate: Number(tutorRate.replace(/\./g, "")),
         capacity: Number(capacity),
         packageHours: Number(packageHours),
       });
@@ -80,16 +81,16 @@ export default function CreateClassForm({
           </label>
           <input
             id="studentRate"
-            type="number"
+            type="text"
+            inputMode="numeric"
             required
-            min={1}
             value={studentRate}
             onChange={(e) => {
-              setStudentRate(e.target.value);
+              setStudentRate(formatThousands(e.target.value));
               setError(null);
             }}
             className={inputClass}
-            placeholder="100000"
+            placeholder="100.000"
           />
         </div>
         <div>
@@ -98,16 +99,16 @@ export default function CreateClassForm({
           </label>
           <input
             id="tutorRate"
-            type="number"
+            type="text"
+            inputMode="numeric"
             required
-            min={1}
             value={tutorRate}
             onChange={(e) => {
-              setTutorRate(e.target.value);
+              setTutorRate(formatThousands(e.target.value));
               setError(null);
             }}
             className={inputClass}
-            placeholder="75000"
+            placeholder="75.000"
           />
         </div>
         <div>

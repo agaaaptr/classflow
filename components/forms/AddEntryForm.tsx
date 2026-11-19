@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition, useState } from "react";
+import { useTransition, useState, type FormEvent } from "react";
 import { addLogbookEntry } from "@/lib/actions/logbooks";
 import Select from "@/components/ui/Select";
 
@@ -22,7 +22,7 @@ export default function AddEntryForm({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  function submit(e: React.FormEvent) {
+  function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     startTransition(async () => {

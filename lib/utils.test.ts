@@ -5,6 +5,7 @@ import {
   hoursLeft,
   lessonMinutes,
   wibToIso,
+  formatThousands,
 } from "./utils";
 
 describe("formatRupiah", () => {
@@ -57,5 +58,14 @@ describe("hoursLeft", () => {
 describe("wibToIso", () => {
   it("appends the +07 offset", () => {
     expect(wibToIso("2026-11-20", "09:00")).toBe("2026-11-20T09:00:00+07:00");
+  });
+});
+
+describe("formatThousands", () => {
+  it("adds id-ID thousand separators and strips non-digits", () => {
+    expect(formatThousands("100000")).toBe("100.000");
+    expect(formatThousands("1200000")).toBe("1.200.000");
+    expect(formatThousands("75000")).toBe("75.000");
+    expect(formatThousands("abc1234")).toBe("1.234");
   });
 });
