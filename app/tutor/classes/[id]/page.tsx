@@ -78,9 +78,9 @@ export default async function TutorClassPage({
   const card = "rounded-card border border-cloud bg-white";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-section">
       <header>
-        <h1 className="text-xl font-semibold">{cls.name}</h1>
+        <h1 className="text-fluid-lg font-semibold">{cls.name}</h1>
         <p className="mt-1 text-sm text-muted">
           Kapasitas {cls.capacity} · Paket {formatMinutes(cls.package_minutes)}
         </p>

@@ -43,10 +43,10 @@ export default async function AdminLogbookPage({
   const card = "rounded-card border border-cloud bg-white";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-section">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold">
+          <h1 className="text-fluid-lg font-semibold">
             Logbook {cls?.name ?? "-"} · {logbook.period}
           </h1>
           <p className="mt-1 text-sm text-muted">

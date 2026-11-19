@@ -68,9 +68,9 @@ export default async function StudentDashboard() {
   const card = "rounded-card border border-cloud bg-white";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-section">
       <header>
-        <h1 className="text-xl font-semibold">Dashboard Siswa</h1>
+        <h1 className="text-fluid-lg font-semibold">Dashboard Siswa</h1>
         <p className="mt-1 text-sm text-muted">
           Kelas saya, sisa jam, jadwal, dan logbook yang sudah disetujui.
         </p>

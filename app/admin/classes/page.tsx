@@ -21,9 +21,9 @@ export default async function AdminClassesPage() {
   const card = "rounded-card border border-cloud bg-white";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-section">
       <header>
-        <h1 className="text-xl font-semibold">Kelas</h1>
+        <h1 className="text-fluid-lg font-semibold">Kelas</h1>
         <p className="mt-1 text-sm text-muted">Buat kelas dan atur rate, kapasitas, serta paket jam.</p>
       </header>
 
