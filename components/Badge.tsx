@@ -1,11 +1,11 @@
 const STYLES: Record<string, string> = {
-  paid: "bg-success/15 text-success",
-  approved: "bg-success/15 text-success",
-  unpaid: "bg-cloud text-navy/70",
-  draft: "bg-cloud text-navy/70",
+  paid: "bg-success/15 text-success-ink",
+  approved: "bg-success/15 text-success-ink",
+  unpaid: "bg-cloud text-navy",
+  draft: "bg-cloud text-navy",
   submitted: "bg-gold/25 text-navy",
-  cancelled: "bg-danger/15 text-danger",
-  active: "bg-success/15 text-success",
+  cancelled: "bg-danger/15 text-danger-ink",
+  active: "bg-success/15 text-success-ink",
 };
 
 const LABELS: Record<string, string> = {
@@ -22,7 +22,7 @@ export default function Badge({ status }: { status: string }) {
   return (
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-        STYLES[status] ?? "bg-cloud text-navy/70"
+        STYLES[status] ?? "bg-cloud text-navy"
       }`}
     >
       {LABELS[status] ?? status}

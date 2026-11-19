@@ -8,6 +8,8 @@
   --color-muted: #6e7585;
   --color-success: #0ab848;
   --color-danger: #ff2819;
+  --color-success-ink: #067a30;
+  --color-danger-ink: #c0180b;
 
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --radius-card: 6px;

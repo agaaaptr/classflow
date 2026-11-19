@@ -9,8 +9,10 @@ const BASE =
 const VARIANTS: Record<string, string> = {
   primary: "bg-navy text-white",
   secondary: "border border-cloud text-navy hover:bg-surface",
-  danger: "border border-danger text-danger hover:bg-danger/10",
-  success: "bg-success text-white",
+  danger: "border border-danger text-danger-ink hover:bg-danger/10",
+  // Bayar/Setujui are primary actions; green #0AB848 can't hold white (2.6:1),
+  // so the "success" variant renders as the brand primary (navy).
+  success: "bg-navy text-white",
 };
 
 // Generic client wrapper for a server action. `action` is the imported server
@@ -54,12 +56,12 @@ export default function ActionButton({
         onClick={() => (confirmText ? setConfirmOpen(true) : run())}
         disabled={pending}
         aria-busy={pending}
-        className={className ?? `${BASE} ${VARIANTS[variant]}`}
+        className={`${BASE} ${VARIANTS[variant]} ${className ?? ""}`}
       >
         {pending ? <span className="spinner" aria-hidden /> : children}
       </button>
       {error && (
-        <span className="mt-1 text-xs text-danger" role="alert">
+        <span className="mt-1 text-xs text-danger-ink" role="alert">
           {error}
         </span>
       )}

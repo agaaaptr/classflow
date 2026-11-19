@@ -57,10 +57,12 @@ export default function Select({
         break;
       case "Home":
         e.preventDefault();
+        setOpen(true);
         setActiveIndex(0);
         break;
       case "End":
         e.preventDefault();
+        setOpen(true);
         setActiveIndex(options.length - 1);
         break;
       case "Enter":
@@ -103,9 +105,10 @@ export default function Select({
         aria-expanded={open}
         aria-controls={listId}
         aria-label={ariaLabel}
+        aria-activedescendant={open && activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined}
         onClick={() => setOpen((o) => !o)}
         onKeyDown={onKeyDown}
-        className="flex h-11 w-full items-center justify-between rounded-card border border-cloud bg-white px-3 text-left text-base focus:border-navy focus:outline-none md:h-10 md:text-sm"
+        className="flex h-11 w-full items-center justify-between rounded-card border border-cloud bg-white px-3 text-left text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy md:h-10 md:text-sm"
       >
         <span className={selected ? "text-navy" : "text-muted"}>
           {selected ? selected.label : placeholder}

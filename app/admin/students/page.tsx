@@ -66,7 +66,7 @@ export default async function AdminStudentsPage() {
                   <td className="px-5 py-2.5">{classById.get(enrollment.class_id)?.name ?? "-"}</td>
                   <td className="px-5 py-2.5 text-right">{formatMinutes(enrollment.package_minutes)}</td>
                   <td className="px-5 py-2.5 text-right"><Badge status={paid ? "paid" : "unpaid"} /></td>
-                  <td className={`px-5 py-2.5 text-right font-semibold ${paid && left !== null && left < 60 ? "text-danger" : "text-navy"}`}>
+                  <td className={`px-5 py-2.5 text-right font-semibold ${paid && left !== null && left < 60 ? "text-danger-ink" : "text-navy"}`}>
                     {paid && left !== null ? formatMinutes(left) : "-"}
                   </td>
                 </tr>

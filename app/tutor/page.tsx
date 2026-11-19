@@ -50,7 +50,7 @@ export default async function TutorDashboard() {
       </header>
 
       <section className={card} aria-labelledby="classes-heading">
-        <h2 id="classes-heading" className="border-b border-cloud px-5 py-3 text-sm font-semibold">
+        <h2 id="classes-heading" className="border-b border-cloud px-5 py-3 text-base font-semibold">
           Kelas saya
         </h2>
         <div className="divide-y divide-cloud">
@@ -76,7 +76,7 @@ export default async function TutorDashboard() {
       </section>
 
       <section className={card} aria-labelledby="earnings-heading">
-        <h2 id="earnings-heading" className="border-b border-cloud px-5 py-3 text-sm font-semibold">
+        <h2 id="earnings-heading" className="border-b border-cloud px-5 py-3 text-base font-semibold">
           Slip earnings
         </h2>
 

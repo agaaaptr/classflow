@@ -33,7 +33,7 @@ export default function ScheduleLessonForm({ classId }: { classId: string }) {
   }
 
   const input =
-    "mt-1 h-11 w-full rounded-card border border-cloud px-3 py-2 text-base focus:border-navy focus:outline-none md:h-10 md:text-sm";
+    "mt-1 h-11 w-full rounded-card border border-cloud px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy md:h-10 md:text-sm";
 
   return (
     <form onSubmit={submit} className="space-y-4">
@@ -66,7 +66,7 @@ export default function ScheduleLessonForm({ classId }: { classId: string }) {
         </div>
       </div>
 
-      {error && <p className="text-sm text-danger" role="alert">{error}</p>}
+      {error && <p className="text-sm text-danger-ink" role="alert">{error}</p>}
 
       <button
         type="submit"

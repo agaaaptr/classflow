@@ -5,7 +5,7 @@ import { addLogbookEntry } from "@/lib/actions/logbooks";
 import Select from "@/components/ui/Select";
 
 const inputClass =
-  "mt-1 w-full rounded-card border border-cloud px-3 py-2 text-base focus:border-navy focus:outline-none md:text-sm";
+  "mt-1 w-full rounded-card border border-cloud px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy md:text-sm";
 
 export default function AddEntryForm({
   logbookId,
@@ -117,7 +117,7 @@ export default function AddEntryForm({
       </div>
 
       {error && (
-        <p className="text-sm text-danger" role="alert">
+        <p className="text-sm text-danger-ink" role="alert">
           {error}
         </p>
       )}

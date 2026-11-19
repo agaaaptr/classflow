@@ -7,7 +7,7 @@ import Select from "@/components/ui/Select";
 const initialState: ClassActionState = { ok: false, error: null };
 
 const inputClass =
-  "mt-1 h-11 w-full rounded-card border border-cloud px-3 py-2 text-base focus:border-navy focus:outline-none md:h-10 md:text-sm";
+  "mt-1 h-11 w-full rounded-card border border-cloud px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy md:h-10 md:text-sm";
 
 export default function CreateClassForm({
   tutors,
@@ -108,7 +108,7 @@ export default function CreateClassForm({
       </div>
 
       {state.error && (
-        <p className="text-sm text-danger" role="alert">
+        <p className="text-sm text-danger-ink" role="alert">
           {state.error}
         </p>
       )}

@@ -91,10 +91,10 @@ export default async function AdminDashboard() {
           <Link
             key={stat.label}
             href={stat.href}
-            className="rounded-card border border-cloud bg-white px-4 py-3 transition hover:bg-surface"
+            className="min-w-0 overflow-hidden rounded-card border border-cloud bg-white px-4 py-3 transition hover:bg-surface"
           >
-            <div className="text-xs font-medium text-muted">{stat.label}</div>
-            <div className={`mt-1 text-2xl font-semibold ${stat.tone}`}>{stat.value}</div>
+            <div className="truncate text-xs font-medium text-muted">{stat.label}</div>
+            <div className={`mt-1 truncate text-xl font-semibold sm:text-2xl ${stat.tone}`}>{stat.value}</div>
           </Link>
         ))}
       </div>
