@@ -93,3 +93,24 @@ test("admin approves the logbook and returns to dashboard", async ({ page }) => 
   await page.waitForURL("**/admin");
   await expect(page.getByText("Tidak ada logbook menunggu")).toBeVisible();
 });
+
+test("admin creates a class with the pre-selected tutor", async ({ page }) => {
+  await login(page, "admin@classflow.dev");
+  await page.waitForURL("**/admin");
+
+  await page.getByRole("link", { name: "Kelas" }).click();
+  await page.waitForURL("**/admin/classes");
+  await page.getByRole("link", { name: "Buat kelas" }).click();
+  await page.waitForURL("**/admin/classes/new");
+
+  // Tutor is pre-selected (tutor1); only fill the other fields.
+  await page.getByLabel("Nama kelas").fill("Kelas Uji E2E");
+  await page.getByLabel("Student rate (Rp/jam)").fill("90000");
+  await page.getByLabel("Tutor rate (Rp/jam)").fill("70000");
+  await page.getByLabel("Kapasitas").fill("3");
+  await page.getByLabel("Paket (jam)").fill("10");
+  await page.getByRole("button", { name: "Simpan kelas" }).click();
+
+  await page.waitForURL("**/admin/classes");
+  await expect(page.getByText("Kelas Uji E2E")).toBeVisible();
+});

@@ -9,7 +9,10 @@ import { redirect } from "next/navigation";
 
 const createClassSchema = z.object({
   name: z.string().trim().min(1, "Nama kelas wajib diisi"),
-  tutorId: z.string().uuid("Pilih tutor terlebih dahulu."),
+  // Non-empty only: Postgres accepts the seeded all-zero UUIDs, but zod's
+  // strict RFC 4122 `uuid()` regex rejects them. The DB uuid type + 22P02 are
+  // the real validator.
+  tutorId: z.string().min(1, "Pilih tutor terlebih dahulu."),
   studentRate: z.number().int().positive("Student rate harus positif"),
   tutorRate: z.number().int().positive("Tutor rate harus positif"),
   capacity: z.number().int().positive("Kapasitas harus positif"),
