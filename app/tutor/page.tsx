@@ -91,13 +91,13 @@ export default async function TutorDashboard() {
                   <span className="text-sm text-muted">Periode {lb?.period}</span>
                   <Badge status={lb?.status ?? ""} />
                 </div>
-                <table className="w-full text-sm">
+                <table className="w-full text-sm tabular-nums">
                   <thead>
-                    <tr className="border-b border-cloud text-left text-muted">
-                      <th className="py-1.5 pr-4 font-medium">Lesson</th>
-                      <th className="py-1.5 pr-4 font-medium">Durasi</th>
-                      <th className="py-1.5 pr-4 font-medium">Rate</th>
-                      <th className="py-1.5 font-medium">Earnings</th>
+                    <tr className="border-b border-cloud text-left">
+                      <th className="py-1.5 pr-4 text-xs font-semibold uppercase tracking-wider text-muted">Lesson</th>
+                      <th className="py-1.5 pr-4 text-right text-xs font-semibold uppercase tracking-wider text-muted">Durasi</th>
+                      <th className="py-1.5 pr-4 text-right text-xs font-semibold uppercase tracking-wider text-muted">Rate</th>
+                      <th className="py-1.5 text-right text-xs font-semibold uppercase tracking-wider text-muted">Earnings</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -106,14 +106,14 @@ export default async function TutorDashboard() {
                         <td className="py-1.5 pr-4">
                           {lessonById.get(r.lesson_id) ? formatDateTimeWIB(lessonById.get(r.lesson_id)!.starts_at) : "-"}
                         </td>
-                        <td className="py-1.5 pr-4">{formatMinutes(r.minutes)}</td>
-                        <td className="py-1.5 pr-4">{formatRupiah(r.rate_rp)}/jam</td>
-                        <td className="py-1.5 font-medium">{formatRupiah(r.amount_rp)}</td>
+                        <td className="py-1.5 pr-4 text-right">{formatMinutes(r.minutes)}</td>
+                        <td className="py-1.5 pr-4 text-right">{formatRupiah(r.rate_rp)}/jam</td>
+                        <td className="py-1.5 text-right font-medium">{formatRupiah(r.amount_rp)}</td>
                       </tr>
                     ))}
                     <tr>
                       <td colSpan={3} className="py-2 pr-4 text-right text-muted">Subtotal</td>
-                      <td className="py-2 font-semibold">{formatRupiah(total)}</td>
+                      <td className="py-2 text-right font-semibold">{formatRupiah(total)}</td>
                     </tr>
                   </tbody>
                 </table>

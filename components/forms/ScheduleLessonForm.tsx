@@ -33,11 +33,11 @@ export default function ScheduleLessonForm({ classId }: { classId: string }) {
   }
 
   const input =
-    "mt-1 w-full rounded-card border border-cloud px-3 py-2 text-sm focus:border-navy focus:outline-none";
+    "mt-1 h-11 w-full rounded-card border border-cloud px-3 py-2 text-base focus:border-navy focus:outline-none md:h-10 md:text-sm";
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <label htmlFor="startDate" className="block text-sm font-medium">Tanggal mulai</label>
           <input
